@@ -1,4 +1,4 @@
-package com.example.biblebuddy
+package com.biblebuddy
 
 import org.junit.Test
 

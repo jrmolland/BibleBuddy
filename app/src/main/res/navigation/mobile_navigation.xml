@@ -3,30 +3,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/mobile_navigation"
-    app:startDestination="@id/navigation_groups_list">
+    app:startDestination="@+id/navigation_groups">
 
-<!--    <fragment-->
-<!--        android:id="@+id/navigation_home"-->
-<!--        android:name="com.bottomnavigationdemo.ui.home.HomeFragment"-->
-<!--        android:label="@string/title_home"-->
-<!--        tools:layout="@layout/fragment_home" />-->
+    <fragment
+        android:id="@+id/navigation_groups"
+        android:name="com.biblebuddy.ui.groups.GroupsFragment"
+        android:label="@string/title_groups"
+        tools:layout="@layout/fragment_groups" />
 
     <fragment
         android:id="@+id/navigation_nearby"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:label="@string/title_search_group"
-        tools:layout="@layout/activity_nearby_map" />
+        android:name="com.biblebuddy.ui.nearby.NearbyFragment"
+        android:label="@string/title_nearby"
+        tools:layout="@layout/fragment_nearby" />
 
     <fragment
-        android:id="@+id/navigation_groups_list"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
-        android:label="@string/title_group_list"
-        tools:layout="@layout/fragment_groups_list" />
-
-<!--    TODO: Add the settings tab-->
-<!--    <fragment-->
-<!--        android:id="@+id/navigation_notifications"-->
-<!--        android:name="com.bottomnavigationdemo.ui.notifications.NotificationsFragment"-->
-<!--        android:label="@string/title_notifications"-->
-<!--        tools:layout="@layout/fragment_notifications" />-->
+        android:id="@+id/navigation_settings"
+        android:name="com.biblebuddy.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
 </navigation>

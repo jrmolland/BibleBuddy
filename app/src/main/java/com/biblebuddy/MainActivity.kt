@@ -1,4 +1,4 @@
-package com.example.biblebuddy
+package com.biblebuddy
 
 import android.os.Bundle
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -18,9 +18,8 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment)
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
-//        val appBarConfiguration = AppBarConfiguration(setOf(
-//            R.id.navigation_home, R.id.navigation_group_list, R.id.navigation_nearby))
-        val appBarConfiguration = AppBarConfiguration(setOf(R.id.navigation_group_list))
+        val appBarConfiguration = AppBarConfiguration(setOf(
+                R.id.navigation_groups, R.id.navigation_nearby, R.id.navigation_settings))
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
     }
