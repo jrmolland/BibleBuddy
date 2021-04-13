@@ -9,6 +9,7 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.biblebuddy.R
+import com.google.android.gms.maps.SupportMapFragment
 
 class NearbyFragment : Fragment() {
 
@@ -19,13 +20,12 @@ class NearbyFragment : Fragment() {
             container: ViewGroup?,
             savedInstanceState: Bundle?
     ): View? {
+        super.onCreate(savedInstanceState)
+
         nearbyViewModel =
                 ViewModelProvider(this).get(NearbyViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_nearby, container, false)
-        val textView: TextView = root.findViewById(R.id.text_nearby)
-        nearbyViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
+
         return root
     }
 }
