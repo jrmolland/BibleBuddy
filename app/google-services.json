@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "66617558528",
+    "project_id": "bible-buddy-310300",
+    "storage_bucket": "bible-buddy-310300.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:66617558528:android:3bd6c2869402aa8521bae5",
+        "android_client_info": {
+          "package_name": "com.biblebuddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "66617558528-0f2538lile6b3uu31mmo1m5uh260pv6d.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDE6TrjVP1sNboYEHDr1R2yw6s9efWzDeA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "66617558528-0f2538lile6b3uu31mmo1m5uh260pv6d.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
