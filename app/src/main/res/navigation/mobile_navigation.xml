@@ -13,13 +13,8 @@
 
     <fragment
         android:id="@+id/navigation_nearby"
-        android:name="com.biblebuddy.ui.nearby.NearbyFragment"
+        android:name="com.biblebuddy.ui.nearby.NearbyMainFragment"
         android:label="@string/title_nearby"
         tools:layout="@layout/fragment_nearby" />
 
-    <fragment
-        android:id="@+id/navigation_settings"
-        android:name="com.biblebuddy.ui.settings.SettingsFragment"
-        android:label="@string/title_settings"
-        tools:layout="@layout/fragment_settings" />
 </navigation>

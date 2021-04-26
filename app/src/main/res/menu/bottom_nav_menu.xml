@@ -11,9 +11,4 @@
         android:icon="@drawable/ic_baseline_location_on_24"
         android:title="@string/title_nearby" />
 
-    <item
-        android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_baseline_settings_24"
-        android:title="@string/title_settings" />
-
 </menu>
