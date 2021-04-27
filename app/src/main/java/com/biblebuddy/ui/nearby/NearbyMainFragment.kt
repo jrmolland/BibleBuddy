@@ -5,7 +5,6 @@ import android.content.Context
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,13 +12,16 @@ import android.widget.ImageButton
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.biblebuddy.MainActivity
 import com.biblebuddy.R
+import com.biblebuddy.SharedViewModel
+import com.biblebuddy.data.model.GroupLocation
 import com.google.android.gms.location.*
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.vmadalin.easypermissions.EasyPermissions
@@ -29,9 +31,12 @@ import com.vmadalin.easypermissions.annotations.AfterPermissionGranted
 class NearbyMainFragment : Fragment() {
 
     private lateinit var map: GoogleMap
-    private lateinit var nearbyViewModel: NearbyViewModel
+    private var mapReady = false
+
     private lateinit var btnLocation: ImageButton
 //    private lateinit var searchView: SearchView
+
+    private lateinit var model: SharedViewModel
 
     private lateinit var locationPermission: String
 
@@ -40,6 +45,9 @@ class NearbyMainFragment : Fragment() {
 
     private lateinit var client: FusedLocationProviderClient
 
+    private lateinit var locations: List<GroupLocation>
+
+    @SuppressLint("MissingPermission")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -47,8 +55,6 @@ class NearbyMainFragment : Fragment() {
     ): View? {
         super.onCreate(savedInstanceState)
 
-        nearbyViewModel =
-            ViewModelProvider(this).get(NearbyViewModel::class.java)
         locationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
 
         locationCallback = object : LocationCallback() {
@@ -59,23 +65,43 @@ class NearbyMainFragment : Fragment() {
             }
         }
 
-        return inflater.inflate(R.layout.fragment_nearby, container, false)
+
+        var rootView = inflater.inflate(R.layout.fragment_nearby, container, false)
+
+        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
+
+        mapFragment.getMapAsync { googleMap ->
+            accessLocation()
+            map = googleMap
+            mapReady = true
+
+            map.isMyLocationEnabled = true
+            map.uiSettings.isMyLocationButtonEnabled = false
+        }
+
+        return rootView
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment?
-        mapFragment?.getMapAsync(callback)
-
         client = LocationServices.getFusedLocationProviderClient(activity)
+        model = ViewModelProvider(this).get(SharedViewModel::class.java)
 
         btnLocation = view.findViewById(R.id.btn_get_location)
-//        searchView = view.findViewById(R.id.search_bar)
-
         btnLocation.setOnClickListener {
             accessLocation()
         }
+    }
+
+    override fun onActivityCreated(savedInstanceState: Bundle?) {
+        super.onActivityCreated(savedInstanceState)
+
+        model.groups.observe(viewLifecycleOwner, Observer { groups ->
+            this.locations = groups
+            updateMap()
+        })
+
     }
 
     override fun onRequestPermissionsResult(
@@ -86,16 +112,6 @@ class NearbyMainFragment : Fragment() {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
         EasyPermissions.onRequestPermissionsResult(requestCode, permissions, grantResults, this)
-    }
-
-    @SuppressLint("MissingPermission")
-    private val callback = OnMapReadyCallback { googleMap ->
-        googleMap?.let {
-            map = it
-            map.isMyLocationEnabled = true
-            map.uiSettings.isMyLocationButtonEnabled = false
-            accessLocation()
-        }
     }
 
     @SuppressLint("MissingPermission")
@@ -147,7 +163,16 @@ class NearbyMainFragment : Fragment() {
 
     private fun updateCurrentLocation(lat: Double, long: Double) {
         val sydney = LatLng(lat, long)
-//        map.addMarker(MarkerOptions().position(sydney).title("John's Dorm Room"))
         map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15f))
+    }
+
+    private fun updateMap() {
+        if (locations != null) {
+            locations.forEach{ group ->
+                var marker = MarkerOptions().position(group.latLong).title(group.description)
+                marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.holy_bible))
+                map.addMarker(marker)
+            }
+        }
     }
 }
