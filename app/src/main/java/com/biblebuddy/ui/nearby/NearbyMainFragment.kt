@@ -9,13 +9,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageButton
-import android.widget.SearchView
-import android.widget.Toast
+import android.widget.ProgressBar
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.biblebuddy.MainActivity
+import androidx.loader.content.Loader
 import com.biblebuddy.R
 import com.biblebuddy.SharedViewModel
 import com.biblebuddy.data.model.GroupLocation
@@ -45,7 +43,7 @@ class NearbyMainFragment : Fragment() {
 
     private lateinit var client: FusedLocationProviderClient
 
-    private lateinit var locations: List<GroupLocation>
+    private var locations = mutableListOf<GroupLocation>()
 
     @SuppressLint("MissingPermission")
     override fun onCreateView(
@@ -54,6 +52,8 @@ class NearbyMainFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         super.onCreate(savedInstanceState)
+
+        var rootView = inflater.inflate(R.layout.fragment_nearby, container, false)
 
         locationPermission = android.Manifest.permission.ACCESS_FINE_LOCATION
 
@@ -65,43 +65,38 @@ class NearbyMainFragment : Fragment() {
             }
         }
 
+        accessLocation()
 
-        var rootView = inflater.inflate(R.layout.fragment_nearby, container, false)
+        model = ViewModelProvider(this).get(SharedViewModel::class.java)
+        client = LocationServices.getFusedLocationProviderClient(activity)
+
+        btnLocation = rootView.findViewById(R.id.btn_get_location)
+        btnLocation.setOnClickListener {
+            findCurrentLocation()
+        }
 
         val mapFragment = childFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
 
         mapFragment.getMapAsync { googleMap ->
-            accessLocation()
             map = googleMap
             mapReady = true
-
-            map.isMyLocationEnabled = true
-            map.uiSettings.isMyLocationButtonEnabled = false
+            model.fetchGroups()
+            map.moveCamera(
+                CameraUpdateFactory.newLatLngZoom(
+                    LatLng(
+                        37.58786390490888,
+                        -78.77005423203961
+                    ), 5f
+                )
+            )
         }
-
-        return rootView
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        client = LocationServices.getFusedLocationProviderClient(activity)
-        model = ViewModelProvider(this).get(SharedViewModel::class.java)
-
-        btnLocation = view.findViewById(R.id.btn_get_location)
-        btnLocation.setOnClickListener {
-            accessLocation()
-        }
-    }
-
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
 
         model.groups.observe(viewLifecycleOwner, Observer { groups ->
-            this.locations = groups
-            updateMap()
+            locations = groups
+            drawMarkers()
         })
 
+        return rootView
     }
 
     override fun onRequestPermissionsResult(
@@ -130,25 +125,10 @@ class NearbyMainFragment : Fragment() {
                     LocationManager.NETWORK_PROVIDER
                 )
 
-            if (locationServiceEnabled) {
-                client.lastLocation.addOnCompleteListener {
-                    var location = it.result
-
-                    if (location != null) {
-                        Toast.makeText(requireContext(), "Please wait...", Toast.LENGTH_SHORT)
-                            .show()
-
-                        updateCurrentLocation(location.latitude, location.longitude)
-                    } else {
-                        var locationRequest = LocationRequest.create().apply {
-                            priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-                            interval = 5000
-                            fastestInterval = 1000
-                        }
-
-                        client.requestLocationUpdates(locationRequest, locationCallback, null)
-                    }
-                }
+            if (locationServiceEnabled && mapReady) {
+                // Need to have access first
+                map.isMyLocationEnabled = true
+                map.uiSettings.isMyLocationButtonEnabled = false
             }
 
         } else {
@@ -163,12 +143,39 @@ class NearbyMainFragment : Fragment() {
 
     private fun updateCurrentLocation(lat: Double, long: Double) {
         val sydney = LatLng(lat, long)
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 15f))
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 7f))
     }
 
-    private fun updateMap() {
-        if (locations != null) {
-            locations.forEach{ group ->
+    @SuppressLint("MissingPermission")
+    private fun findCurrentLocation() {
+        client.lastLocation.addOnCompleteListener {
+            var location = it.result
+
+//            val args: NearbyMainFragmentArgs by navArgs()
+//            if(args.groupID > -1) {
+//                var latLng = model.getGroupAtIndex(args.groupID).latLong
+//                updateCurrentLocation(latLng.latitude,latLng.longitude)
+//                Toast.makeText(requireContext(), "$latLng.latitude}", Toast.LENGTH_SHORT)
+//                    .show()
+//            }
+
+            if (location != null) {
+                updateCurrentLocation(location.latitude, location.longitude)
+            } else {
+                var locationRequest = LocationRequest.create().apply {
+                    priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+                    interval = 5000
+                    fastestInterval = 1000
+                }
+
+                client.requestLocationUpdates(locationRequest, locationCallback, null)
+            }
+        }
+    }
+
+    private fun drawMarkers() {
+        if (locations != null && mapReady) {
+            locations.forEach { group ->
                 var marker = MarkerOptions().position(group.latLong).title(group.description)
                 marker.icon(BitmapDescriptorFactory.fromResource(R.drawable.holy_bible))
                 map.addMarker(marker)

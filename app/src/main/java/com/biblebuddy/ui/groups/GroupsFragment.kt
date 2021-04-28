@@ -1,6 +1,8 @@
 package com.biblebuddy.ui.groups
 
 import android.os.Bundle
+import android.os.Handler
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,10 +17,6 @@ import com.biblebuddy.SharedViewModel
 import com.biblebuddy.data.model.GroupLocation
 import com.google.android.gms.maps.model.LatLng
 
-//interface FragmentLitener {
-//    fun
-//}
-
 class GroupsFragment : Fragment() {
 
     private lateinit var model: SharedViewModel
@@ -32,51 +30,37 @@ class GroupsFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        model = ViewModelProvider(this).get(SharedViewModel::class.java)
-
+        model = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+        model.fetchGroups()
         val root = inflater.inflate(R.layout.fragment_groups, container, false)
 
         rv = root.findViewById(R.id.rv_recyclerView)
-        rvAdapter = RecyclerAdapter(groups)
+        rvAdapter = RecyclerAdapter(groups, requireContext())
 
-        postToList()
         initRecyclerView()
 
-//        setData()
+        setData()
 
         return root
     }
 
-//    private fun setData() {
-//        model.groups.observe(viewLifecycleOwner, Observer<ArrayList<GroupLocation>> { it ->
-//            Toast.makeText(requireContext(), "Hello!", Toast.LENGTH_SHORT).show()
-//            if (it != null) {
-////                recyclerViewAdapter.setListData(it)
-//                recyclerViewAdapter.notifyDataSetChanged()
-//                Toast.makeText(requireContext(), "Data!", Toast.LENGTH_SHORT).show()
-//            } else {
-//                Toast.makeText(requireContext(), "Data Error", Toast.LENGTH_SHORT).show()
-//            }
-//        })
-//    }
+    private fun setData() {
+        model.groups.observe(
+            viewLifecycleOwner,
+            Observer { groupLocations ->
+                if (groupLocations != null) {
+                    rvAdapter.setListData(groupLocations)
+                    rvAdapter.notifyDataSetChanged()
+                } else {
+                    Toast.makeText(requireContext(), "Data Error", Toast.LENGTH_SHORT).show()
+                }
+            })
+    }
 
     private fun initRecyclerView() {
         rv.apply {
             layoutManager = LinearLayoutManager(requireContext())
             adapter = rvAdapter
-        }
-    }
-
-    private fun postToList() {
-        for (i in 1..25) {
-            groups.add(
-                GroupLocation(
-                    LatLng(0.0, 0.0),
-                    "phone ${i}",
-                    "host ${i}",
-                    "description ${i}"
-                )
-            )
         }
     }
 }

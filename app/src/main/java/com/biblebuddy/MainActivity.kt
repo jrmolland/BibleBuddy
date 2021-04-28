@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         model = ViewModelProvider(this).get(SharedViewModel::class.java)
-        model.fetchGroups()
+//        model.populateData()
 
         setContentView(R.layout.activity_main)
 
