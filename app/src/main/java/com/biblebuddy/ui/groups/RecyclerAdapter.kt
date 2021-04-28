@@ -9,12 +9,11 @@ import androidx.recyclerview.widget.RecyclerView
 import com.biblebuddy.R
 import com.biblebuddy.data.model.GroupLocation
 
-class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
-    var groups = ArrayList<GroupLocation>()
+class RecyclerAdapter(private var groups: List<GroupLocation>): RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
-    fun setListData(data: ArrayList<GroupLocation>) {
-        groups = data
-    }
+//    fun setListData(data: ArrayList<GroupLocation>) {
+//        groups = data
+//    }
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         val itemTitle: TextView = itemView.findViewById(R.id.tv_groupName)
@@ -22,7 +21,7 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
 
         init {
             itemView.setOnClickListener { v: View ->
-                val position: Int = adapterPosition
+                val position: Int = bindingAdapterPosition
                 Toast.makeText(
                     itemView.context,
                     "You clicked on item # ${position + 1}",
@@ -30,7 +29,6 @@ class RecyclerAdapter: RecyclerView.Adapter<RecyclerAdapter.ViewHolder>() {
                 ).show()
             }
         }
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

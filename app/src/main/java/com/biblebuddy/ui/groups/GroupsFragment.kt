@@ -22,10 +22,10 @@ import com.google.android.gms.maps.model.LatLng
 class GroupsFragment : Fragment() {
 
     private lateinit var model: SharedViewModel
-    private lateinit var recyclerViewAdapter: RecyclerAdapter
+    private lateinit var rvAdapter: RecyclerAdapter
     private lateinit var rv: RecyclerView
 
-    private var groups = ArrayList<GroupLocation>()
+    private var groups = mutableListOf<GroupLocation>()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -37,29 +37,33 @@ class GroupsFragment : Fragment() {
         val root = inflater.inflate(R.layout.fragment_groups, container, false)
 
         rv = root.findViewById(R.id.rv_recyclerView)
+        rvAdapter = RecyclerAdapter(groups)
 
+        postToList()
         initRecyclerView()
-        setData()
+
+//        setData()
 
         return root
     }
 
-    private fun setData() {
-        model.groups.observe(viewLifecycleOwner, Observer<ArrayList<GroupLocation>> { it ->
-            if (it != null) {
-                recyclerViewAdapter.setListData(it)
-                recyclerViewAdapter.notifyDataSetChanged()
-            } else {
-                Toast.makeText(requireContext(), "Data Error", Toast.LENGTH_SHORT).show()
-            }
-        })
-    }
+//    private fun setData() {
+//        model.groups.observe(viewLifecycleOwner, Observer<ArrayList<GroupLocation>> { it ->
+//            Toast.makeText(requireContext(), "Hello!", Toast.LENGTH_SHORT).show()
+//            if (it != null) {
+////                recyclerViewAdapter.setListData(it)
+//                recyclerViewAdapter.notifyDataSetChanged()
+//                Toast.makeText(requireContext(), "Data!", Toast.LENGTH_SHORT).show()
+//            } else {
+//                Toast.makeText(requireContext(), "Data Error", Toast.LENGTH_SHORT).show()
+//            }
+//        })
+//    }
 
     private fun initRecyclerView() {
         rv.apply {
             layoutManager = LinearLayoutManager(requireContext())
-            recyclerViewAdapter = RecyclerAdapter()
-            adapter = recyclerViewAdapter
+            adapter = rvAdapter
         }
     }
 

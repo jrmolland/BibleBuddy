@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.biblebuddy.data.model.GroupLocation
+import com.google.android.gms.maps.model.LatLng
 import com.google.firebase.firestore.FirebaseFirestore
 
 class SharedViewModel : ViewModel() {
@@ -14,18 +15,23 @@ class SharedViewModel : ViewModel() {
 //    }
 
     fun fetchGroups() {
-        var db = FirebaseFirestore.getInstance()
-        db.collection("bible-studies")
-            .get()
-            .addOnCompleteListener { it ->
-                if (it.isSuccessful) {
-                    Log.d("TEST", "Updating Data...")
-                    groups.postValue(ArrayList(it.result.map {
-                        GroupLocation(it)
-                    }))
-                } else {
-                    groups.postValue(null)
-                }
-            }
+//        var db = FirebaseFirestore.getInstance()
+//        db.collection("bible-studies")
+//            .get()
+//            .addOnCompleteListener { it ->
+//                if (it.isSuccessful) {
+//                    Log.d("TEST", "Updating Data...")
+//                    groups.postValue(ArrayList(it.result.map {
+//                        GroupLocation(it)
+//                    }))
+//                } else {
+//                    groups.postValue(null)
+//                }
+//            }
+
+        var l = ArrayList<GroupLocation>()
+        l.add(GroupLocation(LatLng(0.0, 0.0), "Hello", "Hello", "Hello"))
+        groups.value = l
+
     }
 }
